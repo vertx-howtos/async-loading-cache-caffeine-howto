@@ -1,160 +1,197 @@
-= Template and instructions for the Eclipse Vert.x how-tos
-:author: Julien Ponge <julien.ponge@gmail.com>
-:toc:
-
-This repository can be cloned and used as a basis for creating a new Eclipse Vert.x how-to.
-It especially contains the https://jekyllrb.com/[Jekyll] and continuous integration configurations for publishing a how-to as a web page.
-
-== Conventions
-
-Each how-to is a self-contained Git repository of the https://github.com/vertx-howtos[corresponding organisation on GitHub].
-
-The how-to document is written using the https://asciidoctor.org/docs/what-is-asciidoc/[Asciidoc] text format in a file called `README.adoc` at the root of the Git repository.
-
-The accompanying source code is directly at the root of the Git repository.
-For instance a Maven `pom.xml` is co-located with `README.adoc` at the root of the repository.
-
-Projects should preferably have both Maven and Gradle build descriptors.
-An author who doesn't have knowledge of either of the tools can always ask for contributions.
-
-== Structure of a how-to
-
-A how-to is not a guide or a mini-book: it must be as concise as possible.
-
-In practice this means that each how-to must focus on a very narrow topic.
-It also means that the text must not deviate from the topic, and that the chosen example must be as simple as possible.
-
-The structure of a how-to must be as follows.
-
-=== What you will build
-
-- Explain the example scenario from a functional point of view.
-- Explain what the user can see when running the example.
-- Highlight the different pieces of code to be written and how they fit together.
-
-=== What you need
-
-- List all required tools to edit, build and run the how-to.
-- Do not hesitate to point to third-party resources (e.g., if you need Docker, say why you need it and point to its installation documentation).
-
-=== Create a project
-
-- Explain how to create the project.
-- Show the Maven / Gradle build descriptors.
-- For any third-party tool (e.g., running a database with Docker), also have a subsection to explain this.
-
-=== Implementation sections
-
-- Make one or multiple sections to show the implementation.
-- Make use of Asciidoc source code comments to highlight specific parts of the code.
-- The code must be included using https://asciidoctor.org/docs/asciidoc-syntax-quick-reference/#source-code[Asciidoc directives]. Remember that you can include fragments of code by using delimiter tags.
-
-=== Running the application
-
-- Always show the various options to run the application.
-
-=== Summary
-
-- Briefly recapitulate what was covered and learned in the how-to.
-
-=== See also
-
-- If possible, link to other how-tos.
-- If judicious, link to Vert.x or third-party documentation.
-
-== How is the website being rendered?
-
-The website is being rendered using Jekyll and the Asciidoctor extension for Jekyll.
-
-There is a https://github.com/vertx-howtos/vertx-howtos-jekyll-theme[Jekyll theme] published as a Ruby Gem, so every how-to uses a common theme.
-
-=== Asciidoctor attributes
-
-The common theme depends on the following attributes to be set right below the title header:
-
-[source,text]
-----
-= My awesome how-to
+= Using Caffeine's `AsyncLoadingCache` in a Vert.x application
 :page-permalink: /
-:page-github: vertx-howtos/my-howto
+:page-github: vertx-howtos/async-loading-cache-caffeine-howto
+
+This document will show you how to use Caffeine's `AsyncLoadingCache` in a Vert.x application.
+
+== What you will build
+
+You will build an application that rotates images in a web page.
+
+The images will be downloaded by the server from a public API exposed at https://http.cat.
+
+Each image represents an HTTP status code as a 🐱.
+
+Ready?
+
+image::https://http.cat/100[width=600]
+
+NOTE: Images created by Tomomi Imura (https://twitter.com/girlie_mac[@girlie_mac])
+
+== What you need
+
+* A text editor or IDE,
+* Java 11 or higher,
+* Maven or Gradle.
+
+== Create a project
+
+The code of this project contains Maven and Gradle build files that are functionally equivalent.
+
+=== Using Maven
+
+Here is the content of the `pom.xml` file you should be using:
+
+[source,xml,role="collapsed"]
+.Maven `pom.xml`
+----
+include::pom.xml[]
 ----
 
-The `page-permalink` attribute ensures that `README.adoc` is rendered as `index.html` rather than `README.adoc`.
+=== Using Gradle
 
-The `page-github` attribute must contain the joint GitHub organization and repository so it can properly link to the GitHub repository, provide a direct edition link, and more.
+Assuming you use Gradle with the Kotlin DSL, here is what your `build.gradle.kts` file should look like:
 
-=== Jekyll configuration
-
-The Jekyll configuration shall not have to be tweaked much, here is the basic configuration that we use:
-
-[source,yaml]
+[source,kotlin,role="collapsed"]
+.Gradle `build.gradle.kts`
 ----
-include::_config.yml[]
+include::build.gradle.kts[]
 ----
 
-TIP: When running Jekyll, check the content of the `_site/` folder and adapt the `exclude` items to avoid pushing unnecessary content to the website.
+== Web Page Implementation
 
-=== Ruby environment
+The `index.html` web page consists mainly of:
 
-It is strongly recommended to use either https://github.com/rbenv/rbenv[rbenv] or https://rvm.io/[RVM] for your Ruby installation.
+. an `<img>` tag in the body, and
+. a script that, after the page is loaded, changes the `src` attribute of the image.
 
-You will need https://bundler.io/[Bundler] to install all required dependencies:
-
+[source,html]
+.index.html
 ----
-$ gem install bundler
+include::src/main/resources/webroot/index.html[]
 ----
+<1> `img` tag in the body with `id` set to `cat-img`
+<2> run the script function when the page is loaded
+<3> define some HTTP status codes
+<4> schedule a function to execute periodically at a fixed-delay of 250 milliseconds
+<5> retrieve the `img` element from the DOM using its id
+<6> update the `src` attribute using an HTTP status code chosen randomly
 
-You can then let _Bundler_ do the installation work:
+== Server Implementation
 
+We will need a Vert.x Web Client instance to fetch images:
+
+[source,java]
+.Web Client setup
 ----
-$ bundle install
-----
-
-From time to time you may also update dependencies:
-
-----
-$ bundle update
-----
-
-The dependencies are specified in the `Gemfile` file:
-
-[source,ruby]
-----
-include::Gemfile[]
+include::src/main/java/io/vertx/howtos/caffeine/CatsVerticle.java[tag=web-client]
 ----
 
-TIP: Keep the `vertx-howtos-jekyll-theme` dependency up-to-date!
+We will also need a cache because we do not want to overload the backend API:
 
-=== Running Jekyll
+[source,java]
+.Caffeine setup
+----
+include::src/main/java/io/vertx/howtos/caffeine/CatsVerticle.java[tag=caffeine]
+----
+<1> create a cache builder
+<2> configure the cache to expire items after 1 minute
+<3> enable statistics recording
+<4> define an executor which invokes tasks on the verticle context
+<5> create an asynchronous loader, which much return a `CompletableFuture`, using the cache executor
+<6> fetch the cat image
+<7> convert the Vert.x `Future` to a `CompletionStage`
+<8> log cache statistics periodically
 
-You can run Jekyll with a full auto-reload experience:
+[NOTE]
+====
+The executor definition and the complex loader implementation are not strictly needed here.
+
+Indeed, we will deploy a single verticle instance, bind the cache to a field and always invoke its methods from the event-loop.
+If that is your use-case, you may simplify the setup to:
+
+[source,java]
+----
+include::src/main/java/io/vertx/howtos/caffeine/CatsVerticle.java[tag=caffeine-simple]
+----
+
+If, however, you plan to deploy several instances of the verticle and to share the cache between them, stick to the previous implementation.
+It guarantees that the asynchronous loader is always invoked on the right context.
+====
+
+Fetching the cat image consists in sending the request to the backend using the corresponding HTTP status code as URI:
+
+[source,java]
+.Fetching the image
+----
+include::src/main/java/io/vertx/howtos/caffeine/CatsVerticle.java[tag=fetch]
+----
+
+Using Vert.x Web, creating the HTTP server for our API and static file is pretty straightforward:
+
+[source,java]
+.Server setup
+----
+include::src/main/java/io/vertx/howtos/caffeine/CatsVerticle.java[tag=server]
+----
+
+Here is how we will implement image request handling:
+
+[source,java]
+.Handling image requests
+----
+include::src/main/java/io/vertx/howtos/caffeine/CatsVerticle.java[tag=handle-request]
+----
+<1> retrieve the specified code from the request path
+<2> invoke Caffeine (the image will be loaded from the backend transparently, if needed)
+<3> convert the `CompletableFuture` returned by Caffeine to a Vert.x `Future`
+<4> on completion, send the image bytes (or the failure) to the client
+<5> instruct the browser to disable caching of the image (otherwise, it would query our server only once for a given code!)
+
+== Running the application
+
+The `CatsVerticle` needs a `main` method:
+
+[source,java]
+.Main method
+----
+include::src/main/java/io/vertx/howtos/caffeine/CatsVerticle.java[tag=main]
+----
+<1> Create a Vert.x instance
+<2> Deploy `CatsVerticle`
+
+You can run the application from:
+
+. your IDE, by running the `main` method from the `CatsVerticle` class, or
+. with Maven: `mvn compile exec:java`, or
+. with Gradle: `./gradlew run` (Linux, macOS) or `gradle run` (Windows).
+
+Browse to http://localhost:8080.
+
+You should see the cat images rotating in the web page:
+
+image::cats.gif[width=600]
+
+After some time, inspect the program output.
+You should read something like:
 
 ----
-$ bundle exec jekyll server --watch --livereload
+Mar 22, 2022 3:45:17 PM io.vertx.howtos.caffeine.CatsVerticle lambda$start$4
+INFO: Stats: CacheStats{hitCount=52, missCount=28, loadSuccessCount=28, loadFailureCount=0, totalLoadTime=2514949257, evictionCount=0, evictionWeight=0}
+Mar 22, 2022 3:45:37 PM io.vertx.howtos.caffeine.CatsVerticle lambda$start$4
+INFO: Stats: CacheStats{hitCount=132, missCount=28, loadSuccessCount=28, loadFailureCount=0, totalLoadTime=2514949257, evictionCount=0, evictionWeight=0}
+Mar 22, 2022 3:45:57 PM io.vertx.howtos.caffeine.CatsVerticle lambda$start$4
+INFO: Stats: CacheStats{hitCount=212, missCount=28, loadSuccessCount=28, loadFailureCount=0, totalLoadTime=2514949257, evictionCount=0, evictionWeight=0}
+Mar 22, 2022 3:46:17 PM io.vertx.howtos.caffeine.CatsVerticle lambda$start$4
+INFO: Stats: CacheStats{hitCount=267, missCount=53, loadSuccessCount=52, loadFailureCount=0, totalLoadTime=3337599348, evictionCount=28, evictionWeight=28}
+Mar 22, 2022 3:46:37 PM io.vertx.howtos.caffeine.CatsVerticle lambda$start$4
+INFO: Stats: CacheStats{hitCount=344, missCount=56, loadSuccessCount=56, loadFailureCount=0, totalLoadTime=3480880213, evictionCount=28, evictionWeight=28}
 ----
 
-== How is the website being published?
+Notice the changes in `hitCount`, `missCount`, or `evictionCount`.
 
-The content first needs to be rendered by Jekyll, then the resulting web site files are being pushed to the repository `gh-pages` branch.
-GitHub pages then exposes the content of the `gh-pages` branch as the website.
+== Summary
 
-While you could do this manually, we automate the process with GitHub Actions.
-Pushing to the `master` branch triggers a deployment, and a daily cron job is in place.
+This document covered:
 
-== Misc
+. the Vert.x web client for making HTTP requests,
+. the Vert.x web server and router,
+. the integration of Caffeine's asynchronous loading cache in a Vert.x application,
+. Vert.x periodic tasks.
 
-=== Code style
+== See also
 
-There is a `.editorconfig` file in this template repository with the 2-space indentation style that we prefer in Vert.x.
-
-In any case, favour readability in samples:
-
-- do not hesitate to use blank lines,
-- do not over-engineer,
-- use explicit short private methods rather than complicated lambdas expressions.
-
-=== Asciidoc style
-
-Asciidoc does not enforce any style.
-
-We recommended that you follow the https://asciidoctor.org/docs/asciidoc-recommended-practices/[Asciidoctor recommended practices], and especially the https://asciidoctor.org/docs/asciidoc-recommended-practices/#one-sentence-per-line["One sentence per line"] rule.
+- https://vertx.io/docs/vertx-core/java/[The Vert.x core APIs documentation]
+- https://vertx.io/docs/vertx-web/java/[The Vert.x web documentation]
+- https://vertx.io/docs/vertx-web-client/java/[The Vert.x web client documentation]
+- https://github.com/ben-manes/caffeine/wiki/[The Caffeine project wiki]
