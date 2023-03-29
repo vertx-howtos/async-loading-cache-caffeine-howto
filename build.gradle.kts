@@ -14,11 +14,11 @@ java {
 }
 
 dependencies {
-  val vertxVersion = "4.2.6"
-  implementation("io.vertx:vertx-core:${vertxVersion}")
-  implementation("io.vertx:vertx-web:${vertxVersion}")
-  implementation("io.vertx:vertx-web-client:${vertxVersion}")
-  implementation("com.github.ben-manes.caffeine:caffeine:3.0.6")
+  implementation(platform("io.vertx:vertx-stack-depchain:4.4.0"))
+  implementation("io.vertx:vertx-core")
+  implementation("io.vertx:vertx-web")
+  implementation("io.vertx:vertx-web-client")
+  implementation("com.github.ben-manes.caffeine:caffeine:3.1.5")
 }
 
 application {
