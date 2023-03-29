@@ -131,7 +131,7 @@ Images created by Tomomi Imura (<a href="https://twitter.com/girlie_mac">@girlie
   <span style="color: #000080">&lt;version&gt;</span>1.0-SNAPSHOT<span style="color: #000080">&lt;/version&gt;</span>
 
   <span style="color: #000080">&lt;properties&gt;</span>
-    <span style="color: #000080">&lt;vertx.version&gt;</span>4.2.6<span style="color: #000080">&lt;/vertx.version&gt;</span>
+    <span style="color: #000080">&lt;vertx.version&gt;</span>4.4.0<span style="color: #000080">&lt;/vertx.version&gt;</span>
     <span style="color: #000080">&lt;maven.compiler.source&gt;</span>11<span style="color: #000080">&lt;/maven.compiler.source&gt;</span>
     <span style="color: #000080">&lt;maven.compiler.target&gt;</span>11<span style="color: #000080">&lt;/maven.compiler.target&gt;</span>
   <span style="color: #000080">&lt;/properties&gt;</span>
@@ -164,7 +164,7 @@ Images created by Tomomi Imura (<a href="https://twitter.com/girlie_mac">@girlie
     <span style="color: #000080">&lt;dependency&gt;</span>
       <span style="color: #000080">&lt;groupId&gt;</span>com.github.ben-manes.caffeine<span style="color: #000080">&lt;/groupId&gt;</span>
       <span style="color: #000080">&lt;artifactId&gt;</span>caffeine<span style="color: #000080">&lt;/artifactId&gt;</span>
-      <span style="color: #000080">&lt;version&gt;</span>3.0.6<span style="color: #000080">&lt;/version&gt;</span>
+      <span style="color: #000080">&lt;version&gt;</span>3.1.5<span style="color: #000080">&lt;/version&gt;</span>
     <span style="color: #000080">&lt;/dependency&gt;</span>
   <span style="color: #000080">&lt;/dependencies&gt;</span>
 
@@ -217,11 +217,11 @@ Images created by Tomomi Imura (<a href="https://twitter.com/girlie_mac">@girlie
 <span style="background-color: #f8f8f8">}</span>
 
 <span style="color: #990000;font-weight: bold">dependencies</span> <span style="background-color: #f8f8f8">{</span>
-  <span style="color: #000000;font-weight: bold">val</span> <span style="background-color: #f8f8f8">vertxVersion</span> <span style="background-color: #f8f8f8">=</span> <span style="color: #d14">"4.2.6"</span>
-  <span style="color: #990000;font-weight: bold">implementation</span><span style="background-color: #f8f8f8">(</span><span style="color: #d14">"io.vertx:vertx-core:${vertxVersion}"</span><span style="background-color: #f8f8f8">)</span>
-  <span style="color: #990000;font-weight: bold">implementation</span><span style="background-color: #f8f8f8">(</span><span style="color: #d14">"io.vertx:vertx-web:${vertxVersion}"</span><span style="background-color: #f8f8f8">)</span>
-  <span style="color: #990000;font-weight: bold">implementation</span><span style="background-color: #f8f8f8">(</span><span style="color: #d14">"io.vertx:vertx-web-client:${vertxVersion}"</span><span style="background-color: #f8f8f8">)</span>
-  <span style="color: #990000;font-weight: bold">implementation</span><span style="background-color: #f8f8f8">(</span><span style="color: #d14">"com.github.ben-manes.caffeine:caffeine:3.0.6"</span><span style="background-color: #f8f8f8">)</span>
+  <span style="color: #990000;font-weight: bold">implementation</span><span style="background-color: #f8f8f8">(</span><span style="color: #990000;font-weight: bold">platform</span><span style="background-color: #f8f8f8">(</span><span style="color: #d14">"io.vertx:vertx-stack-depchain:4.4.0"</span><span style="background-color: #f8f8f8">))</span>
+  <span style="color: #990000;font-weight: bold">implementation</span><span style="background-color: #f8f8f8">(</span><span style="color: #d14">"io.vertx:vertx-core"</span><span style="background-color: #f8f8f8">)</span>
+  <span style="color: #990000;font-weight: bold">implementation</span><span style="background-color: #f8f8f8">(</span><span style="color: #d14">"io.vertx:vertx-web"</span><span style="background-color: #f8f8f8">)</span>
+  <span style="color: #990000;font-weight: bold">implementation</span><span style="background-color: #f8f8f8">(</span><span style="color: #d14">"io.vertx:vertx-web-client"</span><span style="background-color: #f8f8f8">)</span>
+  <span style="color: #990000;font-weight: bold">implementation</span><span style="background-color: #f8f8f8">(</span><span style="color: #d14">"com.github.ben-manes.caffeine:caffeine:3.1.5"</span><span style="background-color: #f8f8f8">)</span>
 <span style="background-color: #f8f8f8">}</span>
 
 <span style="color: #990000;font-weight: bold">application</span> <span style="background-color: #f8f8f8">{</span>
@@ -701,7 +701,7 @@ INFO: Stats: CacheStats{hitCount=344, missCount=56, loadSuccessCount=56, loadFai
   <div class="row">
     <div class="col">
       <hr>
-      <p><small>Last published: 2023-03-29 00:35:55 +0000.</small></p>
+      <p><small>Last published: 2023-03-29 15:02:22 +0000.</small></p>
     </div>
   </div>
 </div>
