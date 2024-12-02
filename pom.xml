@@ -10,7 +10,7 @@
   <version>1.0-SNAPSHOT</version>
 
   <properties>
-    <vertx.version>4.4.0</vertx.version>
+    <vertx.version>5.0.0.CR2</vertx.version>
     <maven.compiler.source>11</maven.compiler.source>
     <maven.compiler.target>11</maven.compiler.target>
   </properties>
@@ -52,7 +52,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.10.1</version>
+        <version>3.13.0</version>
         <configuration>
           <release>11</release>
         </configuration>
@@ -60,7 +60,7 @@
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>exec-maven-plugin</artifactId>
-        <version>1.5.0</version>
+        <version>3.5.0</version>
         <configuration>
           <mainClass>io.vertx.howtos.caffeine.CatsVerticle</mainClass>
         </configuration>

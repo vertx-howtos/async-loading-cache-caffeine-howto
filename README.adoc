@@ -154,7 +154,7 @@ You can run the application from:
 
 . your IDE, by running the `main` method from the `CatsVerticle` class, or
 . with Maven: `mvn compile exec:java`, or
-. with Gradle: `./gradlew run` (Linux, macOS) or `gradle run` (Windows).
+. with Gradle: `./gradlew run` (Linux, macOS) or `gradlew run` (Windows).
 
 Browse to http://localhost:8080.
 

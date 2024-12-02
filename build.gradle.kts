@@ -14,7 +14,7 @@ java {
 }
 
 dependencies {
-  implementation(platform("io.vertx:vertx-stack-depchain:4.4.0"))
+  implementation(platform("io.vertx:vertx-stack-depchain:5.0.0.CR2"))
   implementation("io.vertx:vertx-core")
   implementation("io.vertx:vertx-web")
   implementation("io.vertx:vertx-web-client")
@@ -22,9 +22,5 @@ dependencies {
 }
 
 application {
-  mainClassName = "io.vertx.howtos.caffeine.CatsVerticle"
-}
-
-tasks.wrapper {
-  gradleVersion = "7.4.1"
+  mainClass = "io.vertx.howtos.caffeine.CatsVerticle"
 }

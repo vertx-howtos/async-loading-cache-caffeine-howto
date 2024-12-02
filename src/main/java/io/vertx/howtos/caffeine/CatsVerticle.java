@@ -3,17 +3,17 @@ package io.vertx.howtos.caffeine;
 import com.github.benmanes.caffeine.cache.AsyncLoadingCache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.stats.CacheStats;
-import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
+import io.vertx.core.VerticleBase;
 import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
+import io.vertx.core.http.HttpResponseExpectation;
 import io.vertx.core.http.RequestOptions;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.client.HttpRequest;
 import io.vertx.ext.web.client.HttpResponse;
 import io.vertx.ext.web.client.WebClient;
-import io.vertx.ext.web.client.predicate.ResponsePredicate;
 import io.vertx.ext.web.codec.BodyCodec;
 import io.vertx.ext.web.handler.StaticHandler;
 
@@ -24,7 +24,7 @@ import java.util.logging.Logger;
 
 import static io.vertx.core.http.HttpMethod.GET;
 
-public class CatsVerticle extends AbstractVerticle {
+public class CatsVerticle extends VerticleBase {
 
   private static final Logger log = Logger.getLogger(CatsVerticle.class.getName());
 
@@ -32,12 +32,11 @@ public class CatsVerticle extends AbstractVerticle {
   private AsyncLoadingCache<Integer, Buffer> cache;
 
   @Override
-  public void start() {
+  public Future<?> start() {
     // tag::web-client[]
     request = WebClient.create(vertx)
       .request(GET, new RequestOptions().setHost("http.cat").setPort(443).setSsl(true))
-      .as(BodyCodec.buffer())
-      .expect(ResponsePredicate.SC_OK);
+      .as(BodyCodec.buffer());
     // end::web-client[]
 
     // tag::caffeine[]
@@ -61,11 +60,10 @@ public class CatsVerticle extends AbstractVerticle {
     router.get("/api/cats/:id").produces("image/*").handler(this::handleImageRequest);
     router.get().handler(StaticHandler.create());
 
-    vertx.createHttpServer()
+    return vertx.createHttpServer()
       .requestHandler(router)
-      .listen(8080);
-
-    log.info("Server started on port 8080");
+      .listen(8080)
+      .onSuccess(v -> log.info("Server started on port 8080"));
     // end::server[]
   }
 
@@ -103,6 +101,7 @@ public class CatsVerticle extends AbstractVerticle {
   private Future<Buffer> fetchCatImage(int code) {
     return request.uri("/" + code)
       .send()
+      .expecting(HttpResponseExpectation.SC_OK)
       .map(HttpResponse::body);
   }
   // end::fetch[]
@@ -110,7 +109,7 @@ public class CatsVerticle extends AbstractVerticle {
   // tag::main[]
   public static void main(String[] args) {
     Vertx vertx = Vertx.vertx(); // <1>
-    vertx.deployVerticle(new CatsVerticle()); // <2>
+    vertx.deployVerticle(new CatsVerticle()).await(); // <2>
   }
   // end::main[]
 }
